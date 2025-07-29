@@ -1,5 +1,5 @@
 import patr1
-from windows import Timer, wait_for_ctrl_c_keypress, msgbox, close_window, set_wallpaper, replace_color_with_video
+from windows import Timer, wait_for_ctrl_c_keypress, msgbox, close_window
 from screen import SCREEN
 import threading
 import os
