@@ -1,4 +1,4 @@
-import patr1
+import part1
 from windows import Timer, wait_for_ctrl_c_keypress, msgbox, close_window
 from screen import SCREEN
 import threading
@@ -28,7 +28,7 @@ if __name__ == '__main__':
 
 
     timer = Timer()
-    last_task = threading.Thread(target=patr1.play, args=(timer,))
+    last_task = threading.Thread(target=part1.play, args=(timer,))
     last_task.start()
     last_task.join()
     time.sleep(5)

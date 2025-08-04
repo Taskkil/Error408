@@ -7,18 +7,36 @@ import time
 import keyboard
 import os
 import win32api
+import win32process
 from ctypes import wintypes
 import comtypes
 import logging
+from typing import Union
 #有一些(大部分)是AI写的,我会标注
 
 logger = logging.getLogger(__name__)
 
 class Task:
     def __init__(self):
-        self.manager = WindowsManager()
+        self.manager:Union[WindowsManager, SyncMover] = WindowsManager()
         # self.manager.create_parant_window()
         # set_window_z_order(self.manager.parant_hwnd, "topmost")
+    
+    def sync_move(self, x = 0, y = 0, speed_x = 0, speed_y = 0, acceleration_x = 0, acceleration_y = 0, fps = 60, tick=0.01):
+        if not isinstance(self.manager, WindowsManager):
+            raise Exception("manager is not WindowsManager")
+        if not isinstance(self.manager, SyncMover):
+            self.manager = SyncMover(self.manager)
+            self.manager.x = x
+            self.manager.y = y
+            self.manager.speed_x = speed_x
+            self.manager.speed_y = speed_y
+            self.manager.acceleration_x = acceleration_x
+            self.manager.acceleration_y = acceleration_y
+            self.manager.fps = fps
+            self.manager.tick = tick
+        self.manager.start_move()
+
 
 class Timer:
     def __init__(self):
@@ -65,7 +83,7 @@ def wait_for_win_d_keypress():
     except KeyboardInterrupt:
         return
 
-def msgbox(x, y, message, title, icon=None, button=win32con.MB_OK, timeout=3):#deepseek
+def msgbox(x, y, message, title, icon=None, button=win32con.MB_OK, timeout=3, wait_close = False):#deepseek
     """
     创建自定义消息框并返回其句柄
     
@@ -83,13 +101,17 @@ def msgbox(x, y, message, title, icon=None, button=win32con.MB_OK, timeout=3):#d
     # 生成唯一ID作为初始窗口标题
     x = int(x)
     y = int(y)
+    flags = button
+    if icon:
+        flags |= icon
+
+    if wait_close:
+        return ctypes.windll.user32.MessageBoxW(0, message, title, flags)
+
     unique_id = str(uuid.uuid4())
     
     # 在后台线程中创建消息框
     def create_msgbox():
-        flags = button
-        if icon:
-            flags |= icon
             
         # 使用win32api创建消息框
         ctypes.windll.user32.MessageBoxW(0, message, unique_id, flags)
@@ -431,15 +453,40 @@ def set_system_volume(volume: int):#deepseek
         if 'device_enumerator' in locals():
             device_enumerator.Release()
 
+def find_hwnds_by_pid(pid):#qwen
+    def callback(hwnd, hwnds):
+        # 获取窗口的线程和进程 ID
+        _, process_id = win32process.GetWindowThreadProcessId(hwnd)
+        if process_id == pid:
+            # 获取窗口标题（可选）
+            if win32gui.IsWindowVisible(hwnd):  # 可以加上可见性判断
+                try:
+                    title = win32gui.GetWindowText(hwnd)
+                    print(f"Found HWND: {hwnd}, Title: {title}")
+                except:
+                    pass
+            hwnds.append(hwnd)
+        return True
+
+    hwnds = []
+    win32gui.EnumWindows(callback, hwnds)
+    return hwnds
+
 
 class WindowsManager:
     #使用这个类时关闭窗口后不应再次访问，不在内部做判断
-    def __init__(self):
-        self.hwnds = []
-        self.parant_hwnd = None
-        #hwnds中hwnd的索引不能改变
-        self.names = {}
-        self.vaild_hwnd = set()
+    def __init__(self, original = None):
+        if original and isinstance(original, WindowsManager):
+            self.hwnds = original.hwnds.copy()
+            self.parant_hwnd = original.parant_hwnd
+            self.names = original.names.copy()
+            self.vaild_hwnd = original.vaild_hwnd.copy()
+        else:
+            self.hwnds = []
+            self.parant_hwnd = None
+            #hwnds中hwnd的索引不能改变
+            self.names = {}
+            self.vaild_hwnd = set()
     
     def create_parant_window(self):
         #用不了
@@ -492,3 +539,88 @@ class WindowsManager:
                 close_window(self.hwnds[i])
                 if self.hwnds[i] in self.vaild_hwnd: self.vaild_hwnd.remove(self.hwnds[i])
                 self.hwnds[i] = None
+    
+    def __del__(self):
+        try:
+            self.close()
+        except: pass
+
+class SyncMover(WindowsManager):
+    def __init__(self, original = None):
+        super().__init__(original)
+        if isinstance(original, SyncMover):
+            self.windows_coordinates = original.windows_coordinates.copy()
+            self.x = original.x
+            self.y = original.y
+            self.speed_x = original.speed_x
+            self.speed_y = original.speed_y
+            self.acceleration_x = original.acceleration_x
+            self.acceleration_y = original.acceleration_y
+            self.tick = original.tick
+            self.fps = original.fps
+            self.moving = threading.Lock()
+            if original.moving.locked():
+                self.start_move()
+        else:
+            self.windows_coordinates = {}
+            self.x = 0
+            self.y = 0
+            self.speed_x = 0
+            self.speed_y = 0
+            self.acceleration_x = 0
+            self.acceleration_y = 0
+            self.tick = 0.01
+            self.fps = 60
+            self.moving = threading.Lock()
+    
+    def _move(self):
+        with self.moving:
+            st = time.perf_counter()
+            t = 0
+            while self.moving.locked():
+                self.x += self.speed_x * (self.tick - min(0, t))
+                self.y += self.speed_y * (self.tick - min(0, t))
+                self.speed_x += self.acceleration_x * (self.tick - min(0, t))
+                self.speed_y += self.acceleration_y * (self.tick - min(0, t))
+                t = self.tick - time.perf_counter() + st
+                if t > 0:
+                    time.sleep(t)
+                st = time.perf_counter()
+
+    
+    def updating(self):
+        timer = Timer()
+        t = 0
+        while self.moving.locked():
+            for hwnd in reversed(self.hwnds):
+                if not hwnd:
+                    continue
+                move_window(hwnd, self.windows_coordinates[hwnd][0] + self.x, self.windows_coordinates[hwnd][1] + self.y)
+            t += 1/self.fps
+            timer.wait_for(t)
+
+    
+    def start_move(self):
+        if self.moving.locked(): return
+        threading.Thread(target=self._move).start()
+        threading.Thread(target=self.updating).start()
+    
+    def stop_move(self):
+        if self.moving.locked():
+            self.moving.release()
+
+    def create(self, x, y, message, title, icon, button=win32con.MB_OK, name=None, block=True):
+        if not block:
+            threading.Thread(target=self.create, args=(x, y, message, title, icon, button, name, True)).start()
+            return
+        hwnd = msgbox(x + self.x, y + self.y, message, title, icon)
+        if hwnd is None:
+            raise Exception("Error: Failed to create window")
+        self.hwnds.append(hwnd)
+        self.vaild_hwnd.add(hwnd)
+        if name is not None:
+            self.names[name] = hwnd
+        if self.parant_hwnd is not None:
+            win32gui.SetParent(hwnd, self.parant_hwnd)
+        self.windows_coordinates[hwnd] = [x, y]
+        return hwnd
