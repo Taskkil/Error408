@@ -12,7 +12,8 @@ exe_delay = 0
 
 def _start_():
     time.sleep(exe_delay)
-    process = subprocess.Popen("part3.exe", creationflags=subprocess.CREATE_NEW_CONSOLE)
+    path = "%s/part3.exe"%os.path.dirname(os.path.abspath(__file__))
+    process = subprocess.Popen(path, creationflags=subprocess.CREATE_NEW_CONSOLE)
     pid = process.pid
     time.sleep(5.5 - exe_delay)
     subprocess.run("taskkill /f /t /pid %d"%pid, capture_output=True, shell=True)
@@ -55,7 +56,7 @@ class Task2(Task):
     def start(self, timer):
         self.sync_move(speed_x = -200)
         if not isinstance(self.manager, SyncMover):raise#傻逼pylance
-        hwnd = self.manager.create(SCREEN.width * 0.5 - 150, SCREEN.height * 0.5 - 100, "*看不懂日语                                         ", "Microsoft Windows", 16)
+        hwnd = self.manager.create(SCREEN.width * 0.5 - 150, SCREEN.height * 0.5 - 100, "*看不懂                                         ", "Microsoft Windows", 16)
         set_window_z_order(hwnd, "topmost")
         timer.wait_for(53.136)
         hwnd = self.manager.create(SCREEN.width * 0.5 + 50, SCREEN.height * 0.5 - 25, "", "", 0)#空
@@ -88,14 +89,19 @@ class Task2(Task):
             y += 20
             timer.wait_for(t)
         timer.wait_for(62.331)
-        os.system("shutdown /s /t 99999")
-        hwnd = msgbox(SCREEN.width * 0.5 - 100, SCREEN.height * 0.5 - 50, "Start By\tTurn Off\tRestart", "Turn off computer", 0)
-        set_window_z_order(hwnd, "topmost")
+        hwnd1 = msgbox(SCREEN.width * 0.5 - 100, SCREEN.height * 0.5 - 50, "Start By\tTurn Off\tRestart", "Turn off computer", 0)
+        set_window_z_order(hwnd1, "topmost")
         timer.wait_for(62.431)
-        hwnd = msgbox(SCREEN.width * 0.5 - 50, SCREEN.height * 0.5, "Start By\tTurn Off\tRestart", "Turn off computer", 0)
-        set_window_z_order(hwnd, "topmost")
+        hwnd2 = msgbox(SCREEN.width * 0.5 - 50, SCREEN.height * 0.5, "Start By\tTurn Off\tRestart", "Turn off computer", 0)
+        set_window_z_order(hwnd2, "topmost")
         timer.wait_for(63)
-        os.system("shutdown /a")
+        os.system("taskkill /im control.exe")
+        os.system("taskkill /im cleanmgr.exe")
+        os.system("taskkill /f /im CalculatorApp.exe")
+        os.system("taskkill /t /im explorer.exe")
+        self.manager.close()
+        close_window(hwnd1)
+        close_window(hwnd2)
 
 
 

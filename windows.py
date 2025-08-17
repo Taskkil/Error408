@@ -14,6 +14,12 @@ import logging
 from typing import Union
 #有一些(大部分)是AI写的,我会标注
 
+MB_YESNO = 0x00000004
+MB_OK = 0x00000000
+MB_ICONQUESTION = 0x00000020
+IDYES = 6
+IDNO = 7
+
 logger = logging.getLogger(__name__)
 
 class Task:
@@ -203,7 +209,12 @@ def close_window(hwnd):#deepseek
     通过发送 WM_CLOSE 消息优雅关闭窗口
     (类似于点击窗口的关闭按钮)
     """
-    win32gui.PostMessage(hwnd, win32con.WM_CLOSE, 0, 0)
+    try:
+        win32gui.PostMessage(hwnd, win32con.WM_CLOSE, 0, 0)
+    except:
+        return False
+    else:
+        return True
 
 def move_window_z_order(hwnd, target_hwnd, position):#deepseek
     """
@@ -277,25 +288,31 @@ def set_window_z_order(hwnd, position):#deepseek
     
     # 设置窗口位置标志
     flags = win32con.SWP_NOSIZE | win32con.SWP_NOMOVE | win32con.SWP_NOACTIVATE
-    
-    if position == 'top':
-        # 将窗口置于 Z 序顶部（当前活动窗口栈的顶部）
-        win32gui.SetWindowPos(hwnd, win32con.HWND_TOP, 0, 0, 0, 0, flags)
-    
-    elif position == 'bottom':
-        # 将窗口置于 Z 序底部（桌面之上）
-        win32gui.SetWindowPos(hwnd, win32con.HWND_BOTTOM, 0, 0, 0, 0, flags)
-    
-    elif position == 'topmost':
-        # 设置窗口为永久置顶（在所有窗口之上）
-        win32gui.SetWindowPos(hwnd, win32con.HWND_TOPMOST, 0, 0, 0, 0, flags)
-    
-    elif position == 'notopmost':
-        # 取消窗口的永久置顶状态
-        win32gui.SetWindowPos(hwnd, win32con.HWND_NOTOPMOST, 0, 0, 0, 0, flags)
-    
-    # 强制刷新窗口
-    win32gui.UpdateWindow(hwnd)
+    try:
+        
+        if position == 'top':
+            # 将窗口置于 Z 序顶部（当前活动窗口栈的顶部）
+            win32gui.SetWindowPos(hwnd, win32con.HWND_TOP, 0, 0, 0, 0, flags)
+        
+        elif position == 'bottom':
+            # 将窗口置于 Z 序底部（桌面之上）
+            win32gui.SetWindowPos(hwnd, win32con.HWND_BOTTOM, 0, 0, 0, 0, flags)
+        
+        elif position == 'topmost':
+            # 设置窗口为永久置顶（在所有窗口之上）
+            win32gui.SetWindowPos(hwnd, win32con.HWND_TOPMOST, 0, 0, 0, 0, flags)
+        
+        elif position == 'notopmost':
+            # 取消窗口的永久置顶状态
+            win32gui.SetWindowPos(hwnd, win32con.HWND_NOTOPMOST, 0, 0, 0, 0, flags)
+        
+        # 强制刷新窗口
+        win32gui.UpdateWindow(hwnd)
+
+    except:
+        return False
+    else:
+        return True
 
 def update_window(hwnd, new_title=None, new_content=None):#deepseek
     """
@@ -383,12 +400,17 @@ def get_window_position(hwnd):#deepseek
 def set_window_alpha(hwnd, alpha):
     """设置窗口整体透明度 (0-255)"""
     # 设置分层样式
-    ex_style = win32gui.GetWindowLong(hwnd, win32con.GWL_EXSTYLE)
-    win32gui.SetWindowLong(hwnd, win32con.GWL_EXSTYLE, 
-                          ex_style | win32con.WS_EX_LAYERED)
-    
-    # 设置透明度
-    win32gui.SetLayeredWindowAttributes(hwnd, 0, alpha, win32con.LWA_ALPHA)
+    try:
+        ex_style = win32gui.GetWindowLong(hwnd, win32con.GWL_EXSTYLE)
+        win32gui.SetWindowLong(hwnd, win32con.GWL_EXSTYLE, 
+                            ex_style | win32con.WS_EX_LAYERED)
+        
+        # 设置透明度
+        win32gui.SetLayeredWindowAttributes(hwnd, 0, alpha, win32con.LWA_ALPHA)
+    except:
+        return False
+    else:
+        return True
 
 
 
@@ -517,10 +539,10 @@ class WindowsManager:
             raise TypeError("window must be a string or an integer")
     
     def move(self, x, y, window = None):
-        move_window(x, y, self.auto_hwnd(window))
+        return move_window(x, y, self.auto_hwnd(window))
     
     def update(self, window = None, title = None, content = None):
-        update_window(self.auto_hwnd(window), title, content)
+        return update_window(self.auto_hwnd(window), title, content)
         
     def destroy(self, window = None):
         "destroy a window"

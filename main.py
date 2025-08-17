@@ -1,17 +1,10 @@
 import part1
-from windows import Timer, wait_for_ctrl_c_keypress, msgbox, close_window
+from windows import Timer, wait_for_ctrl_c_keypress, msgbox, close_window, MB_YESNO, MB_ICONQUESTION, IDYES, IDNO
 from screen import SCREEN
 import threading
 import os
 import time
 import ctypes
-
-
-MB_YESNO = 0x00000004
-MB_OK = 0x00000000
-MB_ICONQUESTION = 0x00000020
-IDYES = 6
-IDNO = 7
 
 
 
