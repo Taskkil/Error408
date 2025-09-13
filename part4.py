@@ -183,6 +183,82 @@ class Task5(Task):
         hwnd = self.manager.create(SCREEN.width / 2 + 120, 220, 'Error\n\nUnexpected error occurred. You can help us to solve\nthe problem by posting the contents of the log file\non the Factorio forums.', '', win32con.MB_ICONWARNING)
         set_window_z_order(hwnd, "topmost")
         self.move_down(hwnd, SCREEN.width / 2 + 120, 220, 200)
+        timer.wait_for(79.099)
+        hwnd = self.manager.create(200, 400, 'guiminer Error', '', win32con.MB_ICONERROR, win32con.MB_OKCANCEL)
+        set_window_z_order(hwnd, "topmost")
+        self.move_down(hwnd, 200, 400, 200)
+        timer.wait_for(79.266)
+        hwnd = self.manager.create(SCREEN.width / 2 - 300, SCREEN.height / 2 - 50, "https://www.btopenzone.com:8443\nJavaScript error detected!\n\nError: TypeError: 'null' is not an object\nLine: 0\nURL: undefined\nBowser: Mozilla/5.0 (Macintosh; Intel Mac OS X\n10_7_3)AppleWebKit/534.53.11 (KHTML, like Gecko) Version/5.1.3 Safari/534.53.10", '', win32con.MB_ICONERROR)
+        set_window_z_order(hwnd, "topmost")
+        self.move_down(hwnd, SCREEN.width / 2 - 300, SCREEN.height / 2 - 50, 200)
+        timer.wait_for(79.437)
+        hwnd = self.manager.create(SCREEN.width / 2 - 150, 30, "Partition failed\n\nPartition failed with the error:\n\nThe partition cannot be resized. Try reducing the\namount of change in the size of the partition.", "", 16)
+        set_window_z_order(hwnd, "topmost")
+        self.move_down(hwnd, SCREEN.width / 2 - 150, 30, 200)
+        timer.wait_for(79.598)
+        hwnd = self.manager.create(SCREEN.width / 2 + 100, 250, '"Sibelius 7 Installer.mpkg" can'  + "'t be\nopened because it is from an unidentified\ndeveloper.\n\nYour security preferences allow installations of only\napp from the Mac App Store and identified developers.\n\n" + '"Sibelius 7 Installer.mpkg" is on the disk image\n"Sibelius 7 Allt_ang.dmg". Firefox downloaded this disk\nimage today at 14:46.', "", 16)
+        set_window_z_order(hwnd, 'topmost')
+        self.move_down(hwnd, SCREEN.width / 2 + 100, 250, 200)
+        timer.wait_for(79.667)
+        hwnd = self.manager.create(
+            SCREEN.width / 2 - 200, SCREEN.height / 2 - 200,
+            "Your computer was restarted because of a problem.\n" \
+            "This report will be send to Apple automatically.\n" \
+            "Comments\n" \
+            "Problem Details and System Configuration\n" \
+            "Interval Scince Last Panic Report: 10078 sec\n" \
+            "Panic Scince Last Report:          4\n" \
+            "Anonymous UUID:\n" \
+            "***\n" \
+            "\n" \
+            "Wed Aug 15 11:34:03 2012\n" \
+            "***\n" \
+            "***\n" \
+            "\n" \
+            "Backtrace (CPU 5), Frame : Return Address:\n" \
+            "0xffffff80c50abbb0 : 0xffffff800e21d5f6\n" \
+            "0xffffff80c50abc20 : 0xffffff7f90000f1f\n" \
+            "0xffffff80c50abc30 : 0xffffff800e5f9fae\n" \
+            "0xffffff80c50abc90 : 0xffffff800e5f809d\n" \
+            "0xffffff80c50abce0 : 0xffffff800e5f6f7d\n" \
+            "0xffffff80c50abd40 : 0xffffff800e5f694d\n" \
+            "0xffffff80c50abdb0 : 0xffffff800e607c33",
+            "Problem Report for OS X",
+            16,
+            win32con.MB_OKCANCEL
+        )
+        set_window_z_order(hwnd, 'topmost')
+        self.move_down(hwnd, SCREEN.width / 2 - 200, SCREEN.height / 2 - 200, 200)
+        timer.wait_for(79.732)
+        t = 79.732
+        x = 50
+        y = SCREEN.height / 3 * 2
+        windows = [
+            ("Your computer was restarted because of a\nproblem.\nClick Report to see more detailed information and\nsend a report to Apple.", "", 48, win32con.MB_OKCANCEL),
+            ("Steam requires that /Applications/Steam.app/\nContents/MacOS be created on a case insensitive\nfile system, with read-write access.", "", win32con.MB_ICONINFORMATION),
+            ("Unsupported File Format\nThe PICT file format is not supported in 64-bit\nmode. Try selecting " '"Open in 32-bit Mode" in the\nFinder ' "'s info window for Preview.", "", 48),
+            ("Site Manager - Invalid data\nFileZilla is running in kiosk mode.\n'Normal' and 'Account' logontypes are not avaliable in this\nmode.", "", 48),
+            ("The application FileSyncAgent quit\nunexpectedly.\n\nMac OS X and other applications are not affected.\n\nClick Retaunch to launch the application again. Click\nReport to see more details of send a report to Apple.", "", 48, win32con.MB_YESNOCANCEL),
+            ("Connection failed\n\nThe server " '"Meredith" may not exist or it is\nunavaliable at this time. Check the server name or IP\naddress, check your network connection. and then\ntry again.', "", 48),
+            ('"MacDefender.mpkg" will damage your computer.\nYou should move it to the Trash.\nSarfar downloaded this file today at 2:24 PM from\n 169.254.77.133. It contains the "OSX.MacDefender.A" malware.', "", 16, win32con.MB_YESNOCANCEL),
+            ('"10019117.pdf" is damaged and can' "'t be\nopened. You should move it to the Trash.", "", 48, win32con.MB_OKCANCEL),
+            ("Application Moved\nThe application was been moved, and it's path has\nchanged. To update the product congfiguration, Clickn\nUpdate.", "", 16, win32con.MB_YESNO),
+            ("The application FileSyncAgent quit\nunexpectedly.\n\nMac OS X and other applications are not affected.\n\nClick Retaunch to launch the application again. Click\nReport to see more details of send a report to Apple.", "", 48, win32con.MB_YESNOCANCEL),
+            ("Your computer was restarted because of a\nproblem.\nClick Report to see more detailed information and\nsend a report to Apple.", "", 48, win32con.MB_OKCANCEL),
+            ("Connection failed\n\nThe server " '"Meredith" may not exist or it is\nunavaliable at this time. Check the server name or IP\naddress, check your network connection. and then\ntry again.', "", 48),
+        ]
+        for window in windows:
+            try:
+                hwnd = self.manager.create(x, y, *window)
+            except Exception:
+                print(window)
+                raise
+            set_window_z_order(hwnd, 'topmost')
+            self.move_down(hwnd, x, y, 200)
+            t += 0.0909
+            timer.wait_for(t)
+            x += 50
+            y -= 45
 
 
 
@@ -220,4 +296,3 @@ if __name__ == "__main__":
     timer = Timer()
     timer.start_time -= 64.165
     play(timer)
-    input()

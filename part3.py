@@ -12,7 +12,7 @@ exe_delay = 0
 
 def _start_():
     time.sleep(exe_delay)
-    path = "%s/part3.exe"%os.path.dirname(os.path.abspath(__file__))
+    path = "part3.exe"
     process = subprocess.Popen(path, creationflags=subprocess.CREATE_NEW_CONSOLE)
     pid = process.pid
     time.sleep(5.5 - exe_delay)
@@ -73,7 +73,7 @@ class Task2(Task):
         timer.wait_for(56.531)
         # subprocess.Popen("msconfig")
         timer.wait_for(56.832)
-        subprocess.Popen("explorer")
+        # subprocess.Popen("explorer")
         timer.wait_for(58.300)
         x,y = -self.manager.x, -self.manager.y
         hwnd = self.manager.create(SCREEN.width * 0.5 + x, SCREEN.height * 0.5 + y + 50, "你的USB出了点问题,我也不知道是什么\n原视频写的是日语我看不懂", "看不懂", 16)
