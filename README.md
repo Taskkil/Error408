@@ -7,3 +7,7 @@
 # 依赖
 - vlc播放器(运行vlc-3.0.21-win64.exe安装)
 - 如果安装了还是不行就试试另一个
+# 下载
+- 有一些文件大于25m,github传不了,我放在网盘了
+- https://pan.quark.cn/s/e26a7eabce99
+- https://pan.baidu.com/s/10M9Z3PPys-h3bOMy_OP85A?pwd=ycc9
